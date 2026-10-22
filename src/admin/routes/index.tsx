@@ -1,11 +1,15 @@
 import type { RouteObject } from "react-router";
+import { AdminLayout } from '../layout/AdminLayout'
+import { AdminAuthenticatedRoute } from "@/components/routes/protectedRoutes";
 
 export const AdminRoutes: RouteObject[] = [
     {
         path: '/admin',
-        lazy: async () => ({
-            Component: (await import("../layout/AdminLayout")).AdminLayout,
-        }),
+        element: (
+            <AdminAuthenticatedRoute>
+                <AdminLayout />
+            </AdminAuthenticatedRoute>
+        ),
         children: [
             {
                 index: true,

@@ -1,11 +1,15 @@
 import { Navigate, type RouteObject } from "react-router";
+import { AuthLayout } from '../layouts/AuthLayout'
+import { NotAuthenticatedRoute } from "@/components/routes/protectedRoutes";
 
 export const AuthRoutes: RouteObject[] = [
     {
         path: '/auth',
-        lazy: async () => ({
-            Component: (await import("../layouts/AuthLayout")).AuthLayout,
-        }),
+        element: (
+            <NotAuthenticatedRoute>
+                <AuthLayout />
+            </NotAuthenticatedRoute>
+        ),
         children: [
             { index: true, element: <Navigate to="/auth/login" /> },
             {

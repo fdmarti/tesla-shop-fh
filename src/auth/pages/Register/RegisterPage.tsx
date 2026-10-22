@@ -1,4 +1,5 @@
-import { Link } from "react-router"
+import type { SubmitEvent } from "react"
+import { Link, useNavigate } from "react-router"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -6,13 +7,39 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Apple, Google, Meta } from "@/auth/components/Icons"
 import { CustomLogo } from "@/components/custom/CustomLogo"
+import { useAuthStore } from "@/auth/store/auth.store"
+import { useToast } from "@/hooks/useToast"
 
 export function RegisterPage() {
+
+  const navigate = useNavigate()
+  const { register } = useAuthStore()
+  const { showToast } = useToast()
+
+  const onHandleRegisterSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
+    event.preventDefault()
+
+    const formData = new FormData(event.target as HTMLFormElement)
+
+    const fullName = formData.get('fullName') as string
+    const email = formData.get('email') as string
+    const password = formData.get('password') as string
+
+    const isSuccess = await register(fullName, email, password)
+
+    if (isSuccess) {
+      navigate('/')
+      return
+    }
+
+    showToast('Correo y/o contraseña no validos', 'error')
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <Card className="overflow-hidden p-0">
         <CardContent className="grid p-0 md:grid-cols-2">
-          <form className="p-6 md:p-8">
+          <form className="p-6 md:p-8" onSubmit={onHandleRegisterSubmit}>
             <div className="flex flex-col gap-6">
               <div className="flex flex-col items-center text-center">
                 <CustomLogo />
@@ -21,12 +48,12 @@ export function RegisterPage() {
 
               <div className="grid gap-2">
                 <Label htmlFor="email">Nombre completo</Label>
-                <Input id="name" placeholder="Jose" required />
+                <Input id="name" placeholder="Jose" name="fullName" required />
               </div>
 
               <div className="grid gap-2">
                 <Label htmlFor="email">Correo electrónico</Label>
-                <Input id="email" type="email" placeholder="m@example.com" required />
+                <Input id="email" type="email" name="email" placeholder="m@example.com" required />
               </div>
 
               <div className="grid gap-2">
@@ -36,7 +63,7 @@ export function RegisterPage() {
                     ¿Olvidaste tu contraseña?
                   </a>
                 </div>
-                <Input id="password" type="password" required placeholder="Contraseña" />
+                <Input id="password" type="password" name="password" required placeholder="Contraseña" />
               </div>
               <Button type="submit" className="w-full">
                 Crear cuenta

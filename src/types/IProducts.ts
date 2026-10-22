@@ -1,4 +1,4 @@
-import type { User } from "./IUser";
+import type { IUser } from "./IUser";
 
 export interface IProduct {
     id: string;
@@ -11,7 +11,7 @@ export interface IProduct {
     gender: Gender;
     tags: string[];
     images: string[];
-    user: User;
+    user: IUser;
 }
 
 export type Gender = 'kid' | 'men' | 'women' | 'unisex'
