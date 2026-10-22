@@ -7,7 +7,7 @@ import { CustomLink } from "@/components/custom/CustomLink";
 import { Link, useParams } from "react-router";
 import { CustomLogo } from "@/components/custom/CustomLogo";
 
-const DEFAULT_SEARCH_KEY_SEARCH = 'search'
+const DEFAULT_SEARCH_KEY_SEARCH = 'q'
 
 export const CustomHeader = () => {
 
@@ -43,7 +43,7 @@ export const CustomHeader = () => {
                     <CustomLink text="Todos" to="/" active={!gender} />
                     <CustomLink text="Hombres" to="/gender/men" active={gender === 'men'} />
                     <CustomLink text="Mujeres" to="/gender/women" active={gender === 'women'} />
-                    <CustomLink text="Niños" to="/gender/kids" active={gender === 'kids'} />
+                    <CustomLink text="Niños" to="/gender/kid" active={gender === 'kid'} />
                 </nav>
 
                 {/* Search and Cart */}

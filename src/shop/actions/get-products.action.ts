@@ -5,17 +5,27 @@ const BASE_IMAGE_URL = import.meta.env.VITE_API_URL_IMAGES
 const DEFAULT_LIMIT = 9
 
 export interface Params {
-    page: number
+    page?: number
+    gender?: string,
+    sizes?: string,
+    price?: string
+    query?: string
 }
 
 export const getProductsAction = async (params: Params): Promise<IProductsResponse> => {
 
-    const { page } = params
+    const { page = 1, gender = '', sizes = '', price = 'any', query = '' } = params
+
+    const priceValues = buildPriceParams(price)
 
     const { data } = await tesloApi.get<IProductsResponse>('/products', {
         params: {
+            q: query,
             limit: DEFAULT_LIMIT,
-            offset: (page - 1) * DEFAULT_LIMIT
+            offset: (page - 1) * DEFAULT_LIMIT,
+            gender,
+            sizes,
+            ...priceValues
         }
     })
 
@@ -30,4 +40,34 @@ export const getProductsAction = async (params: Params): Promise<IProductsRespon
             }
         })
     }
+}
+
+const buildPriceParams = (price: string) => {
+    let minPrice = undefined
+    let maxPrice = undefined
+
+    switch (price) {
+        case 'any':
+            break;
+        case '0-50':
+            minPrice = 0
+            maxPrice = 50
+            break;
+        case '50-100':
+            minPrice = 50
+            maxPrice = 100
+            break;
+        case '100-200':
+            minPrice = 100
+            maxPrice = 200
+            break;
+        case '200+':
+            minPrice = 200
+            maxPrice = undefined
+            break;
+        default:
+            break;
+    }
+
+    return { minPrice, maxPrice }
 }

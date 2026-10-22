@@ -10,11 +10,12 @@ import { CustomError } from "@/components/custom/CustomError"
 
 interface Props {
     products: IProduct[]
+    countProducts: number
     loading: boolean
     error?: boolean
 }
 
-export const ProductsGrid = ({ products, loading, error }: Props) => {
+export const ProductsGrid = ({ products = [], countProducts = 0, loading = false, error = false }: Props) => {
 
     const [showFilters, setShowFilters] = useState<boolean>(false)
 
@@ -36,7 +37,7 @@ export const ProductsGrid = ({ products, loading, error }: Props) => {
                 <div className="flex items-center justify-between mb-8">
                     <div className="flex items-center space-x-4">
                         <h2 className="text-3xl font-light">Productos</h2>
-                        <span className="text-muted-foreground">({products.length} productos)</span>
+                        <span className="text-muted-foreground">({countProducts} productos)</span>
                     </div>
 
                     <div className="flex items-center space-x-2">
@@ -101,7 +102,7 @@ export const ProductsGrid = ({ products, loading, error }: Props) => {
                                 ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
                                 : "space-y-4"
                         }>
-                            {products.map((product) => (
+                            {products.length > 0 ? products.map((product) => (
                                 <ProductCard
                                     key={product.id}
                                     slug={product.slug}
@@ -111,7 +112,7 @@ export const ProductsGrid = ({ products, loading, error }: Props) => {
                                     category={product.gender}
                                     sizes={product.sizes}
                                 />
-                            ))}
+                            )) : <h1>No hay productos disponibles</h1>}
                         </div>
                     </div>
                 </div>

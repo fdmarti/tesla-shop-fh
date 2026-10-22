@@ -24,13 +24,14 @@ export const GenderPage = () => {
   const { data: productsResponse, isPending, isError } = useProducts()
 
   const defaultProductResponse = productsResponse?.products || []
-  const countProductResponse = productsResponse?.pages || 0
+  const pagesProductResponse = productsResponse?.pages || 0
+  const countProductResponse = productsResponse?.count || 0
 
   return (
     <>
       <CustomJumbotron title={genderLabel()} />
-      <ProductsGrid products={defaultProductResponse} loading={isPending} error={isError} />
-      <CustomPagination totalPages={countProductResponse} />
+      <ProductsGrid products={defaultProductResponse} countProducts={countProductResponse} loading={isPending} error={isError} />
+      <CustomPagination totalPages={pagesProductResponse} />
     </>
   )
 }

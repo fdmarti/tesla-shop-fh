@@ -13,7 +13,7 @@ export const FilterSidebar = () => {
     const onHandleSizeFilter = (size: string) => {
         const newSizes = currentSizes.includes(size)
             ? currentSizes?.filter(s => s !== size)
-            : [...currentSizes, size]
+            : [...currentSizes, size].filter(s => s.trim())
 
         setSearchURLParams({
             page: '1',
