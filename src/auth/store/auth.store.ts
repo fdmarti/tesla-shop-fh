@@ -27,15 +27,9 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
     isAdmin: () => {
         const user = get().user
-
-        console.log({ user })
-
         if (!user) return false
 
         const authStatus = get().authStatus
-
-        console.log({ authStatus })
-
 
         if (authStatus !== 'authenticated') return false
 

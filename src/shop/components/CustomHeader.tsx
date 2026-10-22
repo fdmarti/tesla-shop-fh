@@ -1,41 +1,20 @@
-import { useRef, type KeyboardEvent } from "react";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useSearchURLParams } from "@/hooks/useSearchURLParams";
 import { CustomLink } from "@/components/custom/CustomLink";
 import { Link, useParams } from "react-router";
 import { CustomLogo } from "@/components/custom/CustomLogo";
 import { useAuthStore } from "@/auth/store/auth.store";
+import { useSearchHeaderInput } from "@/hooks/useSearchHeaderInput";
 
-const DEFAULT_SEARCH_KEY_SEARCH = 'q'
 
 export const CustomHeader = () => {
-
     const { authStatus, logout, user } = useAuthStore()
+    const { inputSearchRef, legacySearch, onHandleKeyDownSearch } = useSearchHeaderInput()
 
     const isAdminValid = user?.roles?.includes('admin') || user?.fullName.includes('Fe') ? true : false;
 
     const { gender } = useParams()
-
-    const inputSearchRef = useRef<HTMLInputElement>(null)
-
-    const { getSearchURLParams, setSearchURLParams, deleteSearchURLParams } = useSearchURLParams()
-
-    const legacySearch = getSearchURLParams(DEFAULT_SEARCH_KEY_SEARCH)
-
-    const onHandleKeyDownSearch = (event: KeyboardEvent<HTMLInputElement>) => {
-        if (event.key !== 'Enter') return
-
-        const valueSearch = inputSearchRef.current?.value ?? ''
-
-        if (!valueSearch) {
-            deleteSearchURLParams(DEFAULT_SEARCH_KEY_SEARCH)
-            return
-        }
-
-        setSearchURLParams(DEFAULT_SEARCH_KEY_SEARCH, valueSearch, { clear: true })
-    }
 
     return <header className="sticky top-0 z-50 w-full border-b backdrop-blur bg-slate-50">
         <div className="container mx-auto px-4 lg:px-8">
@@ -64,6 +43,14 @@ export const CustomHeader = () => {
                         <Search className="h-5 w-5" />
                     </Button>
 
+                    {isAdminValid && (
+                        <Link to="/admin">
+                            <Button variant="destructive" size="sm" className="ml-2" >
+                                Admin
+                            </Button>
+                        </Link>
+                    )}
+
                     {authStatus === 'not-authenticated' ?
                         <Link to="/auth/login">
                             <Button variant="default" size="sm" className="ml-2" >
@@ -75,13 +62,7 @@ export const CustomHeader = () => {
                             Cerrar sesion
                         </Button>
                     }
-                    {isAdminValid && (
-                        <Link to="/admin">
-                            <Button variant="destructive" size="sm" className="ml-2" >
-                                Admin
-                            </Button>
-                        </Link>
-                    )}
+
                 </div>
             </div>
         </div>

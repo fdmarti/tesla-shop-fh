@@ -3,9 +3,17 @@ import { AdminTitle } from "@/admin/components/AdminTitle"
 import { CustomPagination } from "@/components/custom/CustomPagination"
 import { Button } from "@/components/ui/button"
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table"
-import { PlusIcon } from "lucide-react"
+import { PencilIcon, PlusIcon } from "lucide-react"
+import { useProducts } from "@/shop/hooks/useProducts"
+import { currencyFormatter } from "@/lib/currency-formatter"
 
 export const AdminProductsPage = () => {
+
+  const { data: productsResponse } = useProducts()
+
+  const defaultProductResponse = productsResponse?.products || []
+  const pagesProductResponse = productsResponse?.pages || 0
+
   return (
     <>
       <div className="flex justify-between items-center">
@@ -23,7 +31,6 @@ export const AdminProductsPage = () => {
       <Table className="bg-white p-10 shadow-xs border border-gray-200 mb-10">
         <TableHeader>
           <TableRow>
-            <TableHead className="w-25">ID</TableHead>
             <TableHead>Imagen</TableHead>
             <TableHead>Nombre</TableHead>
             <TableHead>Cateogoria</TableHead>
@@ -34,26 +41,35 @@ export const AdminProductsPage = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          <TableRow>
-            <TableCell className="font-medium">1</TableCell>
-            <TableCell>
-              <img src="https://placehold.co/250x250" alt="product-1" className="w-20 h-20 object-cover rounded-md" />
-            </TableCell>
-            <TableCell>Product 1</TableCell>
-            <TableCell>Categoria 1</TableCell>
-            <TableCell>$ 2500</TableCell>
-            <TableCell>XS, S, L</TableCell>
-            <TableCell>100</TableCell>
-            <TableHead className="text-right">
-              <Link to={`/admin/products/t-shirt-2`}>
-                <Button>Editar</Button>
-              </Link>
-            </TableHead>
-          </TableRow>
+          {defaultProductResponse.length > 0 ?
+            defaultProductResponse.map(product => {
+              return (
+                <TableRow key={product.id}>
+                  <TableCell>
+                    <img src={product.images[0]} alt="product-1" className="w-20 h-20 object-cover rounded-md" />
+                  </TableCell>
+                  <TableCell>
+                    <Link to={`/admin/products/${product.slug}`} className="hover:cursor-pointer hover:underline hover:underline-offset-2">
+                      {product.title}
+                    </Link>
+                  </TableCell>
+                  <TableCell>{product.gender.toUpperCase()}</TableCell>
+                  <TableCell>{currencyFormatter(product.price)}</TableCell>
+                  <TableCell>{product.sizes.join(' - ')}</TableCell>
+                  <TableCell>{product.stock}</TableCell>
+                  <TableHead className="text-right">
+                    <Link to={`/admin/products/${product.slug}`}>
+                      <PencilIcon className="w-4 h-4 text-blue-500" />
+                    </Link>
+                  </TableHead>
+                </TableRow>
+              )
+            }) : <>No hay productos</>}
+
         </TableBody>
       </Table>
 
-      <CustomPagination totalPages={10} />
+      <CustomPagination totalPages={pagesProductResponse} />
     </>
   )
 }

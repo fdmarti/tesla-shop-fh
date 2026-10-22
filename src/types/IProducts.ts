@@ -15,4 +15,4 @@ export interface IProduct {
 }
 
 export type Gender = 'kid' | 'men' | 'women' | 'unisex'
-export type Size = 'XS' | 'S' | 'M' | 'L' | 'XL' | 'XLL' 
+export type Size = 'XS' | 'S' | 'M' | 'L' | 'XL' | 'XXL' 
