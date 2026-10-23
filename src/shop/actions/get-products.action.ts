@@ -1,7 +1,7 @@
 import { tesloApi } from "@/api/testlaApi"
 import type { IProductsResponse } from "../types/IProductResponse"
+import { BASE_IMAGE_URL } from "@/const/common-urls"
 
-const BASE_IMAGE_URL = import.meta.env.VITE_API_URL_IMAGES
 const DEFAULT_LIMIT = 9
 
 export interface Params {
@@ -36,7 +36,10 @@ export const getProductsAction = async (params: Params): Promise<IProductsRespon
         products: products.map(prod => {
             return {
                 ...prod,
-                images: prod.images.map(img => BASE_IMAGE_URL + img)
+                images: prod.images.map(img => {
+                    if (img.includes('http')) return img
+                    return BASE_IMAGE_URL + img
+                })
             }
         })
     }

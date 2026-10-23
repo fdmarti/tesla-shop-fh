@@ -8,7 +8,9 @@ import { AdminProductForm } from './UI/AdminProductForm';
 export const AdminProductPage = () => {
   const { slug } = useParams();
 
-  const { data: product, isLoading, isError } = useProduct(slug || '')
+  const { data: product, isLoading, isError, onHandleSubmitForm, productMutation } = useProduct(slug || '')
+
+  const { isPending } = productMutation
 
   if (isLoading) return <CustomLoading />
 
@@ -23,6 +25,6 @@ export const AdminProductPage = () => {
   if (!product) return <Navigate to="/admin/products" />
 
   return (
-    <AdminProductForm product={product} subtitle={productSubtitle} title={productTitle} />
+    <AdminProductForm product={product} subtitle={productSubtitle} title={productTitle} isSaving={isPending} onSubmit={onHandleSubmitForm} />
   )
 };

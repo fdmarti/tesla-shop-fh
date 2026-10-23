@@ -1,7 +1,6 @@
 import { tesloApi } from "@/api/testlaApi";
+import { BASE_IMAGE_URL } from "@/const/common-urls";
 import type { IProduct } from "@/types/IProducts";
-
-const BASE_IMAGE_URL = import.meta.env.VITE_API_URL_IMAGES
 
 export const getProductBySlugAction = async (slug: string): Promise<IProduct> => {
     if (!slug) throw new Error('Slug or ID is required')
@@ -27,6 +26,9 @@ export const getProductBySlugAction = async (slug: string): Promise<IProduct> =>
 
     return {
         ...rest,
-        images: images.map(img => BASE_IMAGE_URL + img)
+        images: images.map(img => {
+            if (img.includes('http')) return img
+            return BASE_IMAGE_URL + img
+        })
     }
 }

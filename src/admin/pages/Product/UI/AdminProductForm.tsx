@@ -1,33 +1,48 @@
-import { useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { cn } from "cn";
 import { Link } from "react-router";
 import { useForm } from 'react-hook-form'
-import { X, SaveAll, Tag, Upload } from "lucide-react";
+import { X, SaveAll, Tag, Upload, Loader } from "lucide-react";
+
 import { AdminTitle } from "@/admin/components/AdminTitle";
-import type { IProduct, Size } from "@/types/IProducts";
 import { Button } from "@/components/ui/button";
 import { slugify } from "@/lib/slugify";
-import { cn } from "cn";
+import type { IProduct, Size } from "@/types/IProducts";
 
 interface Props {
     title: string;
     subtitle: string;
     product: IProduct
+    isSaving: boolean
+    onSubmit: (productLike: Partial<IProduct> & { files?: File[] }) => Promise<void>
 }
 
 const availableSizes: Size[] = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
-export const AdminProductForm = ({ product, subtitle, title }: Props) => {
+export const AdminProductForm = ({ product, subtitle, title, isSaving = false, onSubmit }: Props) => {
 
     const [dragActive, setDragActive] = useState(false);
 
-    const { register, handleSubmit, setValue, formState: { errors }, getValues, watch } = useForm({
+    interface FormInputs extends IProduct {
+        files?: File[]
+    }
+
+    const { register, handleSubmit, setValue, formState: { errors }, getValues, watch } = useForm<FormInputs>({
         defaultValues: product
     })
 
+    // eslint-disable-next-line react-hooks/incompatible-library
     const selectedSizes = watch('sizes')
     const selectedTags = watch('tags')
+    const currentStock = watch('stock')
 
     const inputTagRef = useRef<HTMLInputElement>(null)
+
+    const [files, setFiles] = useState<File[]>([])
+
+    useEffect(() => {
+        setFiles([]);
+    }, [product]);
 
     const onTagKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
         const inputTagValue = inputTagRef.current?.value
@@ -35,6 +50,7 @@ export const AdminProductForm = ({ product, subtitle, title }: Props) => {
         if (!inputTagValue) return
 
         if (event.key === 'Enter') {
+            event.preventDefault()
             addTag(inputTagValue)
         }
     }
@@ -85,19 +101,26 @@ export const AdminProductForm = ({ product, subtitle, title }: Props) => {
         e.stopPropagation();
         setDragActive(false);
         const files = e.dataTransfer.files;
-        console.log(files);
+
+        if (!files) return
+
+        setFiles((prev) => [...prev, ...Array.from(files)]);
+
+        const currentFiles = getValues('files') || []
+        setValue('files', [...currentFiles, ...Array.from(files)])
+
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
-        console.log(files);
+
+        if (!files) return
+
+        setFiles((prev) => [...prev, ...Array.from(files)]);
+
+        const currentFiles = getValues('files') || []
+        setValue('files', [...currentFiles, ...Array.from(files)])
     };
-
-
-    const onSubmit = (productLike: IProduct) => {
-        console.log("onSubmit", productLike)
-    }
-
 
 
     return (
@@ -105,16 +128,19 @@ export const AdminProductForm = ({ product, subtitle, title }: Props) => {
             <div className="flex justify-between items-center">
                 <AdminTitle title={title} subtitle={subtitle} />
                 <div className="flex justify-end mb-10 gap-4">
-                    <Button variant="outline">
+                    <Button variant="outline" type="button">
                         <Link to="/admin/products" className="flex items-center gap-2">
                             <X className="w-4 h-4" />
                             Cancelar
                         </Link>
                     </Button>
 
-                    <Button type="submit">
-                        <SaveAll className="w-4 h-4" />
-                        Guardar cambios
+                    <Button type="submit" disabled={isSaving}>
+
+                        {!isSaving
+                            ? (<><SaveAll className="w-4 h-4" /> <span>Guardar cambios</span></>)
+                            : <span><Loader className="animate-spin" /> </span>
+                        }
                     </Button>
                 </div>
             </div>
@@ -143,6 +169,7 @@ export const AdminProductForm = ({ product, subtitle, title }: Props) => {
                                                 setValue('slug', slug);
                                             }
                                         })}
+                                        disabled={isSaving}
                                         className={`w-full px-4 py-3 border  rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${errors.title ? 'border-red-500' : 'border-slate-300'}`}
                                         placeholder="Título del producto"
                                     />
@@ -158,8 +185,9 @@ export const AdminProductForm = ({ product, subtitle, title }: Props) => {
                                             type="number"
                                             {...register('price', {
                                                 required: true,
-                                                min: 1
+                                                min: 1,
                                             })}
+                                            disabled={isSaving}
                                             className={`w-full px-4 py-3 border  rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${errors.price ? 'border-red-500' : 'border-slate-300'}`}
                                             placeholder="Precio del producto"
                                         />
@@ -176,6 +204,7 @@ export const AdminProductForm = ({ product, subtitle, title }: Props) => {
                                                 required: true,
                                                 min: 0
                                             })}
+                                            disabled={isSaving}
                                             className={`w-full px-4 py-3 border  rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${errors.stock ? 'border-red-500' : 'border-slate-300'}`}
                                             placeholder="Stock del producto"
                                         />
@@ -192,6 +221,7 @@ export const AdminProductForm = ({ product, subtitle, title }: Props) => {
                                         {...register('slug', {
                                             required: true,
                                         })}
+                                        disabled={isSaving}
                                         className={`w-full px-4 py-3 border  rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${errors.price ? 'border-red-500' : 'border-slate-300'}`}
                                         placeholder="Slug del producto"
                                         readOnly
@@ -204,10 +234,11 @@ export const AdminProductForm = ({ product, subtitle, title }: Props) => {
                                         Género del producto
                                     </label>
                                     <select
+                                        disabled={isSaving}
                                         {...register('gender')}
                                         className={`w-full px-4 py-3 border  rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${errors.price ? 'border-red-500' : 'border-slate-300'}`}
                                     >
-                                        <option value="men">Hombre</option>
+                                        <option defaultValue="men" value="men">Hombre</option>
                                         <option value="women">Mujer</option>
                                         <option value="unisex">Unisex</option>
                                         <option value="kids">Niño</option>
@@ -221,6 +252,7 @@ export const AdminProductForm = ({ product, subtitle, title }: Props) => {
                                     <textarea
                                         {...register('description')}
                                         rows={5}
+                                        disabled={isSaving}
                                         className={`w-full px-4 py-3 border  rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${errors.price ? 'border-red-500' : 'border-slate-300'}`}
                                         placeholder="Descripción del producto"
                                     />
@@ -372,6 +404,27 @@ export const AdminProductForm = ({ product, subtitle, title }: Props) => {
                                     ))}
                                 </div>
                             </div>
+
+                            {/* Imagenes por cargar */}
+                            {files.length !== 0 && (
+                                <div className="mt-6 space-y-3">
+                                    <h3 className="text-sm font-medium text-slate-700">
+                                        Imágenes por cargar
+                                    </h3>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        {files.map((files, index) => (
+                                            <div className="aspect-square bg-slate-100 rounded-lg border border-slate-200 flex items-center justify-center">
+                                                <img
+                                                    src={URL.createObjectURL(files)}
+                                                    key={index}
+                                                    alt="Product"
+                                                    className="w-full h-full object-cover rounded-lg"
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {/* Product Status */}
@@ -395,16 +448,16 @@ export const AdminProductForm = ({ product, subtitle, title }: Props) => {
                                         Inventario
                                     </span>
                                     <span
-                                        className={`px-2 py-1 text-xs font-medium rounded-full ${product.stock > 5
+                                        className={`px-2 py-1 text-xs font-medium rounded-full ${currentStock > 5
                                             ? 'bg-green-100 text-green-800'
-                                            : product.stock > 0
+                                            : currentStock > 0
                                                 ? 'bg-yellow-100 text-yellow-800'
                                                 : 'bg-red-100 text-red-800'
                                             }`}
                                     >
-                                        {product.stock > 5
+                                        {currentStock > 5
                                             ? 'En stock'
-                                            : product.stock > 0
+                                            : currentStock > 0
                                                 ? 'Bajo stock'
                                                 : 'Sin stock'}
                                     </span>
@@ -424,7 +477,7 @@ export const AdminProductForm = ({ product, subtitle, title }: Props) => {
                                         Tallas disponibles
                                     </span>
                                     <span className="text-sm text-slate-600">
-                                        {product.sizes.length} tallas
+                                        {selectedSizes.length} tallas
                                     </span>
                                 </div>
                             </div>

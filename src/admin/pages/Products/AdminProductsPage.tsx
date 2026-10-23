@@ -41,7 +41,7 @@ export const AdminProductsPage = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {defaultProductResponse.length > 0 ?
+          {
             defaultProductResponse.map(product => {
               return (
                 <TableRow key={product.id}>
@@ -64,8 +64,8 @@ export const AdminProductsPage = () => {
                   </TableHead>
                 </TableRow>
               )
-            }) : <>No hay productos</>}
-
+            })
+          }
         </TableBody>
       </Table>
 
