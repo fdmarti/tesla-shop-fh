@@ -48,7 +48,7 @@ acciones e hooks:
 | Módulo | Descripción |
 |---|---|
 | `shop/` | Tienda pública: listado de productos con filtros (género, talles, precio, búsqueda) y paginación |
-| `admin/` | Panel de administración de productos |
+| `admin/` | Panel de administración de productos: creación y edición con react-hook-form, slug autogenerado a partir del título, carga de imágenes y tallas/etiquetas |
 | `auth/` | Login y registro con autenticación vía Zustand |
 
 Los tipos de dominio compartidos están en `src/types/` y los componentes de UI en
@@ -75,6 +75,8 @@ Los tipos de dominio compartidos están en `src/types/` y los componentes de UI 
 ## Notas
 
 - El idioma de la interfaz es **español**.
+- Para probar el panel admin, ir a `/admin/products` (no hay enlace visible en la tienda): usar
+  `/admin/products/new` para crear un producto, la API debe estar corriendo en `localhost:3000`.
 - El theme vive en `src/index.css` (Tailwind v4 CSS-first); no existe `tailwind.config.js`.
 - La paginación se maneja con `limit`/`offset`: `offset = (page - 1) * limit`.
 - Pendiente: migrar `ProductPage` de los datos mock (`src/mock/products.ts`) a la API.
